@@ -3,9 +3,9 @@
 if arecord -l | grep 'List of CAPTURE Hardware Devices';
 then
 	# Enable gpios
-	# Red LED, recording state
+	# Yellow LED, recording state
 	echo "16" > /sys/class/gpio/export
-	# Yellow LED, processing state // Press Button Confirmation 
+	# Red LED, processing state // Press Button Confirmation 
 	echo "12" > /sys/class/gpio/export
 	# Play Button. Start Recording
 	echo "13" > /sys/class/gpio/export
@@ -27,8 +27,8 @@ then
 	sudo echo "in" > /sys/class/gpio/gpio7/direction
 	sudo echo "in" > /sys/class/gpio/gpio11/direction
 	
-	export AUDIODEV=hw:0,0;
-	export AUDIODRIVER=alsa;
+	#export AUDIODEV=hw:0,0;
+	#export AUDIODRIVER=alsa;
 	mic=1;
 	record=0;
 
@@ -50,15 +50,15 @@ then
 			do
 				echo "1" > /sys/class/gpio/gpio16/value
 				name=$(date "+%Y.%m.%d-%H.%M.%S");
-				rec /home/pi/TestDirection/recsome.wav trim 0 300;
+				rec -c 6 /home/pi/TestDirection/recsome.wav trim 0 300;
 				echo "0" > /sys/class/gpio/gpio16/value
 				echo "1" > /sys/class/gpio/gpio12/value
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_1.mp3 remix 1;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_2.mp3 remix 2;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_3.mp3 remix 3;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_4.mp3 remix 4;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_5.mp3 remix 5;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_6.mp3 remix 6;
+				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_1.flac remix 1;
+				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_2.flac remix 2;
+				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_3.flac remix 3;
+				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_4.flac remix 4;
+				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_5.flac remix 5;
+				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_6.flac remix 6;
 				echo "0" > /sys/class/gpio/gpio12/value
 				# Stop Continuous recording
 				e=$(cat /sys/class/gpio/gpio7/value)
@@ -80,7 +80,7 @@ then
 			echo "0" > /sys/class/gpio/gpio12/value
 
 			echo "1" > /sys/class/gpio/gpio16/value
-			rec /home/pi/TestDirection/test.wav trim 0 4;
+			rec -c 6 /home/pi/TestDirection/test.wav trim 0 4;
 			echo "0" > /sys/class/gpio/gpio16/value
 			sox /home/pi/TestDirection/test.wav /home/pi/TestDirection/t.wav remix $mic;
 			aplay -D sysdefault:CARD=audioinjectoroc /home/pi/TestDirection/t.wav
@@ -111,9 +111,9 @@ then
 
 else
 	# Enable gpios
-	# Red LED, recording state
+	# Yellow LED, recording state
 	echo "16" > /sys/class/gpio/export
-	# Yellow LED, processing state // Press Button Confirmation 
+	# Red LED, processing state // Press Button Confirmation 
 	echo "12" > /sys/class/gpio/export
 	# Play Button. Start Recording
 	echo "13" > /sys/class/gpio/export
@@ -142,8 +142,8 @@ else
 	sudo modprobe snd_soc_cs42xx8;
 	sudo modprobe snd_soc_cs42xx8_i2c;
 	sudo modprobe snd_soc_audioinjector_octo_soundcard;
-	export AUDIODEV=hw:0,0;
-	export AUDIODRIVER=alsa;
+	#export AUDIODEV=hw:0,0;
+	#export AUDIODRIVER=alsa;
 	mic=1;
 	record=0;
 
@@ -165,15 +165,15 @@ else
 			do
 				echo "1" > /sys/class/gpio/gpio16/value
 				name=$(date "+%Y.%m.%d-%H.%M.%S");
-				rec /home/pi/TestDirection/recsome.wav trim 0 300;
+				rec -c 6 /home/pi/TestDirection/recsome.wav trim 0 300;
 				echo "0" > /sys/class/gpio/gpio16/value
 				echo "1" > /sys/class/gpio/gpio12/value
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_1.mp3 remix 1;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_2.mp3 remix 2;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_3.mp3 remix 3;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_4.mp3 remix 4;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_5.mp3 remix 5;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_6.mp3 remix 6;
+				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_1.flac remix 1;
+				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_2.flac remix 2;
+				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_3.flac remix 3;
+				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_4.flac remix 4;
+				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_5.flac remix 5;
+				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_6.flac remix 6;
 				# Stop Continuous recording
 				echo "0" > /sys/class/gpio/gpio12/value
 				e=$(cat /sys/class/gpio/gpio7/value)
@@ -194,7 +194,7 @@ else
 			sleep 1s;
 			echo "0" > /sys/class/gpio/gpio12/value
 			echo "1" > /sys/class/gpio/gpio16/value
-			rec /home/pi/TestDirection/test.wav trim 0 4;
+			rec -c 6 /home/pi/TestDirection/test.wav trim 0 4;
 			echo "0" > /sys/class/gpio/gpio16/value
 			sox /home/pi/TestDirection/test.wav /home/pi/TestDirection/t.wav remix $mic;
 			aplay -D sysdefault:CARD=audioinjectoroc /home/pi/TestDirection/t.wav
