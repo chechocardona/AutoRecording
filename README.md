@@ -7,6 +7,6 @@ Add tne next line on: /home/pi/.config/lxsession/LXDE-pi/autostart
 
 Or on: /etc/xdg/lxsession/LXDE-pi/autostart 
 
-´´´
-  @lxterminal -e sudo ./TestDirection/checkMics.sh
-´´´  
+```
+@lxterminal -e sudo ./TestDirection/checkMics.sh
+```
