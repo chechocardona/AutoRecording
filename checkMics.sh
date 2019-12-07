@@ -5,15 +5,15 @@
 echo "16" > /sys/class/gpio/export
 # Red LED, processing state // Press Button Confirmation 
 echo "12" > /sys/class/gpio/export
-# Play Button. Start Recording
+# Play Button. Start Recording  // White Jumper
 echo "13" > /sys/class/gpio/export
-# Test Button: Record and Play during 3 seconds the selected microphone  
+# Test Button: Record and Play during 3 seconds the selected microphone  // Blue Jumper 
 echo "6" > /sys/class/gpio/export
-# Increase Microphone Button: Change the selected microphone for the next one to test it 
+# Increase Microphone Button: Change the selected microphone for the next one to test it // Purple Jumper 
 echo "26" > /sys/class/gpio/export
-# Stop Recording Switch: Stop recording once the current record and processing are finished
+# Stop Recording Switch: Stop recording once the current record and processing are finished // Brown Jumper
 echo "7" > /sys/class/gpio/export
-# Shut Down Button: Safe System shutdown
+# Shut Down Button: Safe System shutdown // Orange Jumper
 echo "11" > /sys/class/gpio/export
 
 # Set In and Out Pins
@@ -25,7 +25,7 @@ sudo echo "in" > /sys/class/gpio/gpio26/direction
 sudo echo "in" > /sys/class/gpio/gpio7/direction
 sudo echo "in" > /sys/class/gpio/gpio11/direction
 	
-debug=1;
+debug=0;
 if [ $debug == "1" ]
 then
 	echo "Just Checking if started on boot";
@@ -42,8 +42,8 @@ else
 		sudo modprobe snd_soc_audioinjector_octo_soundcard;
 	fi
 
-	#export AUDIODEV=hw:0,0;
-	#export AUDIODRIVER=alsa;
+	export AUDIODEV=hw:0,0;
+	export AUDIODRIVER=alsa;
 	mic=1;
 	record=0;
 
@@ -57,62 +57,67 @@ else
 		# Start continuous recording
 		if [ $c == "1" ]
 		then
-			let "record = 0"
-			echo "1" > /sys/class/gpio/gpio12/value
-			sleep 1s;
-			echo "0" > /sys/class/gpio/gpio12/value
-			while [ $record == "0" ]
-			do
+			if [ $record=="0" ]	
+			then
+				let "record = 1"
+				echo "1" > /sys/class/gpio/gpio12/value
+				sleep 1s;
+				echo "0" > /sys/class/gpio/gpio12/value
 				echo "1" > /sys/class/gpio/gpio16/value
 				name=$(date "+%Y.%m.%d-%H.%M.%S");
-				rec -c 6 /home/pi/TestDirection/recsome.wav trim 0 300;
-				echo "0" > /sys/class/gpio/gpio16/value
-				echo "1" > /sys/class/gpio/gpio12/value
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_1.flac remix 1;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_2.flac remix 2;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_3.flac remix 3;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_4.flac remix 4;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_5.flac remix 5;
-				sox /home/pi/TestDirection/recsome.wav /home/pi/TestDirection/"$name"_6.flac remix 6;
-				echo "0" > /sys/class/gpio/gpio12/value
-				# Stop Continuous recording
-				e=$(cat /sys/class/gpio/gpio7/value)
-				if [ $e == "1" ]
-				then
-					echo "1" > /sys/class/gpio/gpio12/value
-					sleep 1s;
-					echo "0" > /sys/class/gpio/gpio12/value
-					let "record=1"
-				fi
-				#sleep 5m;
-			done
+				mkdir /home/pi/TestDirection/"$name";
+				nohup rec -c 6 /home/pi/TestDirection/"$name"/"$name"_%2n.flac trim 0 10 : newfile : restart > /dev/null & 
+			fi
 		fi
 		# Start Test of current selected microphone
 		if [ $b == "1" ]
 		then
-			echo "1" > /sys/class/gpio/gpio12/value
-			sleep 1s;
-			echo "0" > /sys/class/gpio/gpio12/value
-
-			echo "1" > /sys/class/gpio/gpio16/value
-			rec -c 6 /home/pi/TestDirection/test.wav trim 0 4;
-			echo "0" > /sys/class/gpio/gpio16/value
-			sox /home/pi/TestDirection/test.wav /home/pi/TestDirection/t.wav remix $mic;
-			aplay -D sysdefault:CARD=audioinjectoroc /home/pi/TestDirection/t.wav
+			if [ $record == "0" ]
+			then
+				echo "1" > /sys/class/gpio/gpio12/value
+				sleep 1s;
+				echo "0" > /sys/class/gpio/gpio12/value
+	
+				echo "1" > /sys/class/gpio/gpio16/value
+				rec -c 6 /home/pi/TestDirection/test.wav trim 0 4;
+				echo "0" > /sys/class/gpio/gpio16/value
+				sox /home/pi/TestDirection/test.wav /home/pi/TestDirection/test1.wav remix $mic;
+				aplay -D sysdefault:CARD=audioinjectoroc /home/pi/TestDirection/test1.wav;
+				#sleep 5s;
+				rm /home/pi/TestDirection/test.wav;
+				rm /home/pi/TestDirection/test1.wav;
+			fi
 		fi
 		# Change current selected microphone for the next one
 		if [ $d == "1" ]
 		then
-			echo "1" > /sys/class/gpio/gpio12/value
-			sleep 1s;
-			echo "0" > /sys/class/gpio/gpio12/value
-			if (( $mic < 6 ));		then
-				let "mic += 1"
-			else
-				let "mic = 1"
+			if [ $record == "0" ]
+			then
+				echo "1" > /sys/class/gpio/gpio12/value
+				sleep 1s;
+				echo "0" > /sys/class/gpio/gpio12/value
+				if (( $mic < 6 ));		then
+					let "mic += 1"
+				else
+					let "mic = 1"
+				fi
+				echo "$mic"
+				#sleep 1s
 			fi
-			echo "$mic"
-			sleep 1s
+		fi
+		# Stop recording
+		if [ $e == "1" ]
+		then
+			if [ $record=="1" ]
+                        then
+                                echo "1" > /sys/class/gpio/gpio12/value
+                                sleep 1s;
+                                echo "0" > /sys/class/gpio/gpio12/value
+                                echo "0" > /sys/class/gpio/gpio16/value
+                                pkill rec
+                                let "record = 0"
+                        fi
+
 		fi
 		# Safe System Shutdown
 		if [ $f == "1" ]
