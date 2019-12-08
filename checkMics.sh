@@ -66,7 +66,7 @@ else
 				echo "1" > /sys/class/gpio/gpio16/value
 				name=$(date "+%Y.%m.%d-%H.%M.%S");
 				mkdir /home/pi/TestDirection/"$name";
-				nohup rec -c 6 /home/pi/TestDirection/"$name"/"$name"_%2n.flac trim 0 10 : newfile : restart > /dev/null & 
+				nohup rec -c 6 /home/pi/TestDirection/"$name"/"$name"_%2n.flac trim 0 300 : newfile : restart > /dev/null & 
 			fi
 		fi
 		# Start Test of current selected microphone
