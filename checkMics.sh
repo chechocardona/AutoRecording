@@ -41,9 +41,9 @@ else
 		sudo modprobe snd_soc_cs42xx8_i2c;
 		sudo modprobe snd_soc_audioinjector_octo_soundcard;
 	fi
-
-	export AUDIODEV=hw:0,0;
-	export AUDIODRIVER=alsa;
+	sudo hwclock -s
+	#export AUDIODEV=hw:0,0;
+	#export AUDIODRIVER=alsa;
 	mic=1;
 	record=0;
 
